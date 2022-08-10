@@ -1,0 +1,38 @@
+{% extends "base_generic.html" %}
+{% load my_filters %}
+
+
+{% block content %}
+    <h1>Book List</h1>
+    {% if book_list %}
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Book Title</th>
+                <th>ISBN</th>
+                <th>Number of copies</th>
+                <th>Available copies</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for book in book_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></td>
+                    <td>{{ book.isbn }}</td>
+                    <td>{{ book.bookinstance_set.count }}</td>
+                    {% if available_copies|get_value:book.id %}
+                        <td>{{ available_copies|get_value:book.id }}</td>
+                        {% else %}
+                        <td>None</td>
+                    {% endif %}
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>There are no books in the library.</p>
+    {% endif %}
+{% endblock %}

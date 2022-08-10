@@ -1,0 +1,34 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>Author List</h1>
+    {% if author_list %}
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Author Name</th>
+                <th>Date of Birth</th>
+                <th>Date of Death</th>
+                <th>Books by author</th>
+                <th>Borrowed books (today/total)</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for author in author_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><a href="{{ author.get_absolute_url }}">{{ author }}</a>
+                    </td>
+                    <td>{{ author.date_of_birth }}</td>
+                    <td>{{ author.date_of_death|default:' ' }}</td>
+                    <td>{{ author.book_set.count }}</td>
+                    <td>TODO</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>There are no authors in the library.</p>
+    {% endif %}
+{% endblock %}

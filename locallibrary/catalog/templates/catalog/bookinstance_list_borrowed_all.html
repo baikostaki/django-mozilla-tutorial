@@ -1,0 +1,38 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>All Borrowed books</h1>
+
+    {% if bookinstance_list %}
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Book Name</th>
+                <!--        <th>Status</th>-->
+                <th>Due date</th>
+                <th>Borrower Name</th>
+                <th>Borrower email</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for bookinst in bookinstance_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><a href="{{ bookinst.book.get_absolute_url }}">{{ bookinst.book.title }}</a>
+                        {% if bookinst.is_overdue %}
+                            <span class="badge bg-danger ms-1">OVERDUE</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ bookinst.due_back }}</td>
+                    <td>{{ bookinst.borrower.first_name }}{{ ' ' }}{{ bookinst.borrower.last_name }}</td>
+                    <td><a href="mailto:{{ bookinst.borrower.email }}">{{ bookinst.borrower.email }}</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+        <p>There are no books borrowed.</p>
+    {% endif %}
+{% endblock %}

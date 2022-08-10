@@ -1,0 +1,36 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>Borrowed books</h1>
+    <!--#TODO: change similar to this views to table like other one and add remaining days. Fix time- globally adding middleware.py-->
+    {% if bookinstance_list %}
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Book Name</th>
+                <th>Due date</th>
+                <th>Days left</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for bookinstance in bookinstance_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><a href="{{ bookinstance.book.get_absolute_url }}">{{ bookinstance.book.title }}</a>
+                        {% if bookinstance.is_overdue %}
+                            <span class="badge bg-danger ms-1">OVERDUE</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ bookinstance.due_back }}</td>
+                    <td>TODO</td>
+                    <td>TODO</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>There are no books borrowed.</p>
+    {% endif %}
+{% endblock %}
