@@ -13,7 +13,7 @@ def index(request):
     num_instances = BookInstance.objects.all().count()
     search_param, num_genres_with_param, num_books_with_param = None, None, None
     if "search" in request.GET:
-        search_param = request.GET["search"]
+        search_param = request.GET["q"]
         num_genres_with_param = Genre.objects.filter(name__icontains=search_param).count()
         num_books_with_param = Book.objects.all().filter(genre__name__icontains=search_param).count()
 
@@ -33,7 +33,7 @@ def index(request):
         'num_authors': num_authors,
         'num_books_with_param': num_books_with_param,
         'num_genres_with_param': num_genres_with_param,
-        'search_param': search_param,
+        'q': search_param,
         'num_visits': num_visits,
     }
 
@@ -73,12 +73,12 @@ class BookDetailView(generic.DetailView):
 
 class AuthorDetailView(generic.DetailView):
     model = Author
-    paginate_by = 2
+    paginate_by = 10
 
 
 class AuthorListView(generic.ListView):
     model = Author
-    paginate_by = 2
+    paginate_by = 10
 
 
 class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
@@ -101,3 +101,144 @@ class AllLoanedBooksListView(LoginRequiredMixin, PermissionRequiredMixin, generi
     def get_queryset(self):
         return BookInstance.objects.filter(status__exact='o').order_by(
             'due_back')
+
+
+import datetime
+
+from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
+from .forms import RenewBookForm
+
+
+@login_required
+@permission_required('catalog.can_mark_returned', raise_exception=True)
+def renew_book_librarian(request, pk):
+    """View function for renewing a specific BookInstance by librarian."""
+    book_instance = get_object_or_404(BookInstance, pk=pk)
+
+    # If this is a POST request then process the Form data
+    if request.method == 'POST':
+
+        # Create a form instance and populate it with data from the request (binding):
+        form = RenewBookForm(request.POST)
+
+        # Check if the form is valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required (here we just write it to the model due_back field)
+            book_instance.due_back = form.cleaned_data['renewal_date']
+            book_instance.save()
+
+            # redirect to a new URL:
+            return HttpResponseRedirect(reverse('all-borrowed'))
+
+    # If this is a GET (or any other method) create the default form.
+    else:
+        proposed_renewal_date = datetime.date.today() + datetime.timedelta(weeks=3)
+        form = RenewBookForm(initial={'renewal_date': proposed_renewal_date})
+
+    context = {
+        'form': form,
+        'book_instance': book_instance,
+    }
+
+    return render(request, 'catalog/book_renew_librarian.html', context)
+
+
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+
+from .models import Author
+
+
+class AuthorCreate(CreateView):
+    model = Author
+    fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
+    initial = {'date_of_death': '11/06/2020'}
+
+    # def get_success_url(self):
+    #     return reverse_lazy('authors')
+    success_url = reverse_lazy('authors')
+
+
+class AuthorUpdate(UpdateView):
+    model = Author
+    fields = '__all__'  # Not recommended (potential security issue if more fields added)
+
+
+class AuthorDelete(DeleteView):
+    model = Author
+    success_url = reverse_lazy('authors')
+
+
+class BookCreate(CreateView):
+    model = Book
+    fields = ['title', 'author', 'summary', 'isbn', 'genre', 'language']
+    initial = {'date_of_death': '11/06/2020'}
+
+    # def get_success_url(self):
+    #     return reverse_lazy('authors')
+    success_url = reverse_lazy('books')
+
+
+class BookUpdate(UpdateView):
+    model = Book
+    fields = '__all__'  # Not recommended (potential security issue if more fields added)
+
+
+class BookDelete(DeleteView):
+    model = Book
+    success_url = reverse_lazy('books')
+
+
+# class SearchListView(generic.ListView):
+#     model = Book
+#     paginate_by = 10
+#     template_name = 'search.html'
+#
+#     def get_queryset(self, *args, **kwargs):
+#         qs = super().get_queryset()
+#         query = self.request.GET.get('search')
+#         if query:
+#             print('test')
+#             return qs.filter(self.model.title)
+#         return query
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['search_results'] = self.get_queryset()
+#         return context
+
+from itertools import chain
+from django.db.models import Q
+
+
+def search_books(request):
+    query = None
+    if request.GET and request.GET['q']:
+        query = request.GET['q']
+        books = Book.objects.filter(title__icontains=query)
+        authors = Author.objects.filter(Q(first_name__icontains=query) | Q(last_name__icontains=query))
+        search_results = list(chain(books, authors))
+        results = {}
+        for result in search_results:
+            if isinstance(result, Book):
+                if 'books' in results.keys():
+                    results['books'].append(result)
+                else:
+                    results['books'] = []
+                    results['books'].append(result)
+            elif isinstance(result, Author):
+                if 'authors' in results.keys():
+                    results['authors'].append(result)
+                else:
+                    results['authors'] = []
+                    results['authors'].append(result)
+    if query:
+        return render(request, 'catalog/search.html', {
+            'query': query,
+            'results': results
+        })
+    return render(request, 'catalog/search.html', {'q': None})

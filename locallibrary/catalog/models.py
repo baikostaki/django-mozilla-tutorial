@@ -87,6 +87,14 @@ class BookInstance(models.Model):
         """Determines if the book is overdue based on due date and current date."""
         return bool(self.due_back and date.today() > self.due_back)
 
+    @property
+    def days_left(self):
+        """Calculates left days to return book"""
+        return (self.due_back - date.today()).days
+
+    @property
+    def borrower_names(self):
+        return f'{self.borrower.first_name} {self.borrower.last_name}'
 
 class Author(models.Model):
     """Model representing an author."""

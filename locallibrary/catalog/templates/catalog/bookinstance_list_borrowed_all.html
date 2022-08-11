@@ -9,10 +9,11 @@
             <tr>
                 <th>#</th>
                 <th>Book Name</th>
-                <!--        <th>Status</th>-->
+                <th>Borrowed on</th>
                 <th>Due date</th>
                 <th>Borrower Name</th>
                 <th>Borrower email</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -24,9 +25,18 @@
                             <span class="badge bg-danger ms-1">OVERDUE</span>
                         {% endif %}
                     </td>
-                    <td>{{ bookinst.due_back }}</td>
-                    <td>{{ bookinst.borrower.first_name }}{{ ' ' }}{{ bookinst.borrower.last_name }}</td>
-                    <td><a href="mailto:{{ bookinst.borrower.email }}">{{ bookinst.borrower.email }}</a></td>
+                    <td>{{ bookinst.borrowed_on }}</td>
+                    <td>{% if bookinst.days_left == 0 %}
+                            <span class="badge bg-primary ms-1">TODAY</span>
+                        {% else %}
+                        {{ bookinst.due_back }}
+                        {% endif %}
+
+                    </td>
+                    <td>{{ bookinst.borrower_names }}</td>
+                    <td><a href="mailto:{{ bookinst.borrower.email }}">Send email</a></td>
+                    <td><a href="{% url 'renew-book-librarian' bookinst.id %}">Renew</a></td>
+
                 </tr>
             {% endfor %}
             </tbody>

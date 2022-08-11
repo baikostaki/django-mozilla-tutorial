@@ -22,12 +22,13 @@
         by: <a href="{{ copy.borrower.email }}">{{ copy.borrower.email }}</a></p>
     {% endif %}
     {% endif %}
-    </p>
     {% if copy.status != 'a' %}
     <p><strong>Due to be returned:</strong> {{ copy.due_back }}</p>
     {% endif %}
     <p><strong>Imprint:</strong> {{ copy.imprint }}</p>
     <p class="text-muted"><strong>Id:</strong> {{ copy.id }}</p>
     {% endfor %}
+    <hr />
+    <a href="{% url 'books' %}" class="btn btn-warning">Back to list of books</a>
 </div>
 {% endblock %}

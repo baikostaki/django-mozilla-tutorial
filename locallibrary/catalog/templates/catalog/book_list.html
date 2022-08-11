@@ -13,6 +13,9 @@
                 <th>ISBN</th>
                 <th>Number of copies</th>
                 <th>Available copies</th>
+                {% if perms.catalog.can_mark_returned %}
+                    <th>Actions</th>
+                {% endif %}
             </tr>
             </thead>
             <tbody>
@@ -24,10 +27,13 @@
                     <td>{{ book.bookinstance_set.count }}</td>
                     {% if available_copies|get_value:book.id %}
                         <td>{{ available_copies|get_value:book.id }}</td>
-                        {% else %}
+                    {% else %}
                         <td>None</td>
                     {% endif %}
-
+                    {% if perms.catalog.can_mark_returned %}
+                        <td><a href="{% url 'book-update' book.id %}">Update</a> <br/>
+                        <a href="{% url 'book-delete' book.id %}">Delete</a>
+                    {% endif %}
                 </tr>
             {% endfor %}
             </tbody>

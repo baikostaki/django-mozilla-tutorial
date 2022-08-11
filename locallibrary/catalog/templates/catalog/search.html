@@ -1,0 +1,54 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+    {% if query %}
+        {% if results %}
+            <h2>Your search for "{{ query }}" returned the following:</h2>
+            <br/>
+            {% if 'books' in results %}
+                <h3>Books:</h3>
+                <br>
+                {% for key, values in results.items %}
+                    {% if key == 'books' %}
+                        {% for value in values %}
+                            <ul class="list-group">
+                                <li class="list-group-item"><a
+                                        href=" {{ value.get_absolute_url }} ">{{ value.title }}</a>
+                                </li>
+                            </ul>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                <br/>
+            {% endif %}
+            {% if 'authors' in results %}
+                <h3>Authors:</h3>
+
+                {% for key, values in results.items %}
+                    {% if key == 'authors' %}
+                        {% for value in values %}
+                            <ul class="list-group">
+                                <li class="list-group-item"><a href=" {{ value.get_absolute_url }} ">{{ value }}</a>
+                                </li>
+                            </ul>
+                        {% endfor %}
+                    {% endif %}
+
+                {% endfor %}
+            {% endif %}{#            {% for book in results['books]' %}#}
+            {##}
+            {##}
+            {#                <h3></h3>#}
+            {#                <ul class="list-group list-group-flush">#}
+            {#                    {{ result|pprint }}#}
+            {#                      <li class="list-group-item"><a href="{% url 'book-detail' result.id %}">{{ result }}</a></li>#}
+            {#                </ul>#}
+            {##}
+            {#            {% endfor %}#}
+        {% else %}
+            <h2>Please refine your search. No results for: "{{ query }}"</h2>
+        {% endif %}
+    {% else %}
+        <h2>You have stumbled on this page by mistake</h2>
+    {% endif %}
+{% endblock %}

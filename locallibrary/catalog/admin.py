@@ -14,14 +14,14 @@ class BookInstanceAdmin(admin.ModelAdmin):
          - filters that will be displayed in sidebar (list_filter)
          - grouping of fields into sections (fieldsets)
         """
-    list_display = ('book', 'status', 'borrower', 'due_back', 'id')
+    list_display = ('book', 'status', 'borrower', 'due_back', 'id', 'borrowed_on')
     list_filter = ('status', 'due_back')
     fieldsets = (
         ('General', {
             'fields': ('book', 'imprint', 'id')
         }),
         ('Availability', {
-            'fields': ('status', 'due_back', 'borrower')
+            'fields': ('status', ('borrowed_on', 'due_back'), 'borrower', )
         }),
     )
 
@@ -38,7 +38,7 @@ class BooksInline(admin.TabularInline):
 
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'display_genre')
+    list_display = ('title', 'author', 'display_genre', 'id')
 
     inlines = [BooksInstanceInline]
 

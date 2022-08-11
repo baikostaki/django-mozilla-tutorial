@@ -12,6 +12,9 @@
                 <th>Date of Death</th>
                 <th>Books by author</th>
                 <th>Borrowed books (today/total)</th>
+                {% if perms.catalog.can_mark_returned %}
+                    <th>Actions</th>
+                {% endif %}
             </tr>
             </thead>
             <tbody>
@@ -23,7 +26,11 @@
                     <td>{{ author.date_of_birth }}</td>
                     <td>{{ author.date_of_death|default:' ' }}</td>
                     <td>{{ author.book_set.count }}</td>
-                    <td>TODO</td>
+                    <td>TODO with aux table without extending user</td>
+                    {% if perms.catalog.can_mark_returned %}
+                        <td><a href="{% url 'author-update' author.id %}">Update</a> <br/>
+                        <a href="{% url 'author-delete' author.id %}">Delete</a>
+                    {% endif %}
                 </tr>
             {% endfor %}
             </tbody>
@@ -31,4 +38,8 @@
     {% else %}
         <p>There are no authors in the library.</p>
     {% endif %}
+    {% if perms.catalog.can_mark_returned %}
+            <a class="btn btn-warning float-end" href="{% url 'author-create' %}">Add new author</a>
+    {% endif %}
+
 {% endblock %}
