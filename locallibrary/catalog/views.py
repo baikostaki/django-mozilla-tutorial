@@ -1,7 +1,18 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.shortcuts import render
-from django.views import generic
+import datetime
+from itertools import chain
 
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models import Q
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render
+from django.urls import reverse
+from django.urls import reverse_lazy
+from django.views import generic
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+
+from .forms import RenewBookForm
 from .models import Book, Author, BookInstance, Genre
 
 
@@ -64,11 +75,17 @@ class BookListView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['available_copies'] = self.get_available_copies()
+        context['placeholder_img'] = '../../../media/book_covers/book_placeholder.png'
         return context
 
 
 class BookDetailView(generic.DetailView):
     model = Book
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['placeholder_img'] = '../../../media/book_covers/book_placeholder.png'
+        return context
 
 
 class AuthorDetailView(generic.DetailView):
@@ -90,6 +107,11 @@ class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         return BookInstance.objects.filter(borrower=self.request.user).filter(status__exact='o').order_by('due_back')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['placeholder_img'] = '../../../media/book_covers/book_placeholder.png'
+        return context
+
 
 class AllLoanedBooksListView(LoginRequiredMixin, PermissionRequiredMixin, generic.ListView):
     """Librarian list view"""
@@ -102,15 +124,10 @@ class AllLoanedBooksListView(LoginRequiredMixin, PermissionRequiredMixin, generi
         return BookInstance.objects.filter(status__exact='o').order_by(
             'due_back')
 
-
-import datetime
-
-from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-
-from .forms import RenewBookForm
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['placeholder_img'] = '../../../media/book_covers/book_placeholder.png'
+        return context
 
 
 @login_required
@@ -147,17 +164,11 @@ def renew_book_librarian(request, pk):
     return render(request, 'catalog/book_renew_librarian.html', context)
 
 
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
-
-from .models import Author
-
-
 class AuthorCreate(CreateView):
     model = Author
     fields = ['first_name', 'last_name', 'date_of_birth', 'date_of_death']
     initial = {'date_of_death': '11/06/2020'}
-
+    template_name = 'catalog/forms/author_form.html'
     # def get_success_url(self):
     #     return reverse_lazy('authors')
     success_url = reverse_lazy('authors')
@@ -166,17 +177,20 @@ class AuthorCreate(CreateView):
 class AuthorUpdate(UpdateView):
     model = Author
     fields = '__all__'  # Not recommended (potential security issue if more fields added)
+    template_name = 'catalog/forms/author_form.html'
 
 
 class AuthorDelete(DeleteView):
     model = Author
     success_url = reverse_lazy('authors')
+    template_name = 'catalog/forms/author_confirm_delete.html'
 
 
 class BookCreate(CreateView):
     model = Book
     fields = ['title', 'author', 'summary', 'isbn', 'genre', 'language']
     initial = {'date_of_death': '11/06/2020'}
+    template_name = 'catalog/forms/book_form.html'
 
     # def get_success_url(self):
     #     return reverse_lazy('authors')
@@ -186,11 +200,13 @@ class BookCreate(CreateView):
 class BookUpdate(UpdateView):
     model = Book
     fields = '__all__'  # Not recommended (potential security issue if more fields added)
+    template_name = 'catalog/forms/book_form.html'
 
 
 class BookDelete(DeleteView):
     model = Book
     success_url = reverse_lazy('books')
+    template_name = 'catalog/forms/book_confirm_delete.html'
 
 
 # class SearchListView(generic.ListView):
@@ -211,11 +227,11 @@ class BookDelete(DeleteView):
 #         context['search_results'] = self.get_queryset()
 #         return context
 
-from itertools import chain
-from django.db.models import Q
-
 
 def search_books(request):
+    # form = SearchForm(request.GET)
+    # if form.is_valid():
+
     query = None
     if request.GET and request.GET['q']:
         query = request.GET['q']
@@ -239,6 +255,10 @@ def search_books(request):
     if query:
         return render(request, 'catalog/search.html', {
             'query': query,
-            'results': results
+            'results': results,
+            'books': books,
+            'authors': authors,
+            'placeholder': '../../../media/book_covers/book_placeholder.png'
+            # 'form': form,
         })
     return render(request, 'catalog/search.html', {'q': None})

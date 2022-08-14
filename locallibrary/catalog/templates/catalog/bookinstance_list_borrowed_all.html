@@ -8,6 +8,7 @@
             <thead>
             <tr>
                 <th>#</th>
+                <th>Cover</th>
                 <th>Book Name</th>
                 <th>Borrowed on</th>
                 <th>Due date</th>
@@ -20,6 +21,15 @@
             {% for bookinst in bookinstance_list %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
+                    <td>
+                        <a {% if bookinst.book.get_cover_image %} href="{{ book.get_cover_image }}" target="_blank"
+                            >{% else %}
+                            >{% endif %}
+                        <img style="max-width:100px"
+                             src="{{ bookinst.book.get_cover_image|default_if_none:placeholder_img }}"
+                             alt="book cover">
+                        </a>
+                    </td>
                     <td><a href="{{ bookinst.book.get_absolute_url }}">{{ bookinst.book.title }}</a>
                         {% if bookinst.is_overdue %}
                             <span class="badge bg-danger ms-1">OVERDUE</span>
@@ -27,10 +37,10 @@
                     </td>
                     <td>{{ bookinst.borrowed_on }}</td>
                     <td>{% if bookinst.days_left == 0 %}
-                            <span class="badge bg-primary ms-1">TODAY</span>
-                        {% else %}
+                        <span class="badge bg-primary ms-1">TODAY</span>
+                    {% else %}
                         {{ bookinst.due_back }}
-                        {% endif %}
+                    {% endif %}
 
                     </td>
                     <td>{{ bookinst.borrower_names }}</td>

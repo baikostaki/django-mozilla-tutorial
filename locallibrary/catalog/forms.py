@@ -7,7 +7,8 @@ from django.utils.translation import gettext_lazy as _
 
 class RenewBookForm(forms.Form):
     renewal_date = forms.DateField(help_text='Enter a date between now and 4 weeks (default 3).',
-                                   widget=forms.DateInput(attrs={'type': 'date'}))
+                                   widget=forms.DateInput(attrs={'type': 'date'}),
+                                   )
 
     def clean_renewal_date(self):
         data = self.cleaned_data['renewal_date']
@@ -21,9 +22,8 @@ class RenewBookForm(forms.Form):
         return data
 
 
-from django.forms import ModelForm
-
-from .models import BookInstance
+class SearchForm(forms.Form):
+    query = forms.CharField(label='search', help_text='enter query')
 
 
 # class RenewBookModelForm(ModelForm):
@@ -49,6 +49,3 @@ from .models import BookInstance
 #         widgets = {
 #             'due_back': forms.DateInput(attrs={'type': 'date'})
 #         }
-
-
-

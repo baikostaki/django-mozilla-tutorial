@@ -1,14 +1,20 @@
 {% extends "base_generic.html" %}
 {% load my_filters %}
 
-
 {% block content %}
-    <h1>Book List</h1>
+    <div class="d-flex flex-row justify-content-between">
+        <h1>Book List</h1>
+        {% if perms.catalog.can_mark_returned %}
+            <a class="btn btn-warning align-items-center create-button" href="{% url 'book-create' %}">Add new book</a>
+        {% endif %}
+    </div>
+    <br/>
     {% if book_list %}
         <table class="table table-bordered">
             <thead>
             <tr>
                 <th>#</th>
+                <th>Cover</th>
                 <th>Book Title</th>
                 <th>ISBN</th>
                 <th>Number of copies</th>
@@ -22,6 +28,13 @@
             {% for book in book_list %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
+                    <td><a {% if book.get_cover_image %} href="{{ book.get_cover_image }}" target="_blank">{% else %}
+                        >{% endif %}
+                    <img style="max-width:100px" src="{{ book.get_cover_image|default_if_none:placeholder_img }}"
+                         alt="book cover">
+                    </a>
+                    </td>
+
                     <td><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></td>
                     <td>{{ book.isbn }}</td>
                     <td>{{ book.bookinstance_set.count }}</td>
@@ -38,6 +51,7 @@
             {% endfor %}
             </tbody>
         </table>
+        <br/>
     {% else %}
         <p>There are no books in the library.</p>
     {% endif %}

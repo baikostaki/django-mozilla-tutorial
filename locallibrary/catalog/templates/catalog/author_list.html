@@ -1,7 +1,13 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    <h1>Author List</h1>
+    <div class="d-flex flex-row justify-content-between">
+        <h1>Author List</h1>
+        {% if perms.catalog.can_mark_returned %}
+            <a class="btn btn-warning align-items-center create-button" href="{% url 'author-create' %}">Add new
+                author</a>
+        {% endif %}
+    </div>
     {% if author_list %}
         <table class="table table-bordered">
             <thead>
@@ -38,8 +44,4 @@
     {% else %}
         <p>There are no authors in the library.</p>
     {% endif %}
-    {% if perms.catalog.can_mark_returned %}
-            <a class="btn btn-warning float-end" href="{% url 'author-create' %}">Add new author</a>
-    {% endif %}
-
 {% endblock %}

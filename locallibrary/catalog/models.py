@@ -19,7 +19,7 @@ class Genre(models.Model):
 class Book(models.Model):
     """Model representing a book (but not a specific copy of a book)."""
     title = models.CharField(max_length=200)
-
+    cover_image = models.ImageField(upload_to='book_covers/', null=True, blank=True)
     # Foreign Key used because book can only have one author, but authors can have multiple books
     # Author as a string rather than object because it hasn't been declared yet in the file
     author = models.ForeignKey('Author', on_delete=models.SET_NULL, null=True)
@@ -48,6 +48,12 @@ class Book(models.Model):
         return ', '.join(genre.name for genre in self.genre.all()[:3])
 
     display_genre.short_description = 'Genre'
+
+    @property
+    def get_cover_image(self):
+        if self.cover_image:
+            return self.cover_image.url
+        return None
 
 
 class BookInstance(models.Model):
@@ -102,6 +108,7 @@ class Author(models.Model):
     last_name = models.CharField(max_length=100)
     date_of_birth = models.DateField(null=True, blank=True)
     date_of_death = models.DateField('Died', null=True, blank=True)
+
 
     class Meta:
         ordering = ['last_name', 'first_name']
