@@ -2,13 +2,13 @@
 {% load my_filters %}
 
 {% block content %}
+    <br/>
     <div class="d-flex flex-row justify-content-between">
         <h1>Book List</h1>
         {% if perms.catalog.can_mark_returned %}
             <a class="btn btn-warning align-items-center create-button" href="{% url 'book-create' %}">Add new book</a>
         {% endif %}
     </div>
-    <br/>
     {% if book_list %}
         <table class="table table-bordered">
             <thead>

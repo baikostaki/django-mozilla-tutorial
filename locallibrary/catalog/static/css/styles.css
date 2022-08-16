@@ -8,10 +8,6 @@
     max-width: 100px;
 }
 
-ul {
-    list-style-type: none;
-}
-
 .create-button{
     height:min-content;
 }

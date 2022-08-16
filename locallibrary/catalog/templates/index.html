@@ -5,6 +5,15 @@
 {% block content %}
 <h1>Local Library Home</h1>
 <p>Welcome to LocalLibrary, a website developed by <em>Mozilla Developer Network</em>!</p>
+<h2>Crude search</h2>
+    <div class="col-3 mb-3">
+        <form action="" method="GET">
+            <div class="mb-3"><label for="search" class="form-label">Enter search query</label> <br>
+                <input id="search" type="text" name="search" placeholder="Enter text to search genre"
+                       class="form-control"></div>
+            <input type="submit" class="btn btn-primary" value="Search" class="form-control">
+        </form>
+    </div>
 <h2>Dynamic content</h2>
 <p>The library has the following record counts:</p>
 <ul>

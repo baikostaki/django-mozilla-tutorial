@@ -1,0 +1,62 @@
+{% block nav %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}">Local Library&reg;</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar"
+                aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbar">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{% url 'books' %}">Books</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'authors' %}">Authors</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-outline-info text-truncate me-sm-2 mb-sm-2"
+                       href="{% url 'my-borrowed' %}">My borrowed
+                        books</a>
+                </li>
+                <li class="nav-item">
+                    <form class="d-flex mb-sm-2 me-sm-2" method="get" action="{% url 'search' %}">
+                        <input class="form-control text-truncate" type="text" name="q" placeholder="Find a book or author"
+                               aria-label="Find a book or author">
+                        <button class="btn btn-outline-success ms-2" type="submit">Search</button>
+                    </form>
+                </li>
+
+            </ul>
+
+            {% if perms.catalog.can_mark_returned %}
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="btn btn-warning text-truncate mb-sm-2" aria-current="page" href="{% url 'all-borrowed' %}"
+                           role="button">All Borowed books</a>
+                    </li>
+                </ul>
+            {% endif %}
+        </div>
+        <div class="collapse navbar-collapse" id="navbar">
+            {% if user.is_authenticated %}
+                <div class="navbar-nav nav-item dropdown">
+                    <a class="nav-link text-info dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false"><i
+                            class="bi bi-person-circle me-2"></i>Hello, {{ user.username }}</a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                        <li><a class="dropdown-item" href="{% url 'login' %}?next={{ request.path }}">Login</a></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}?next={% url 'index' %}">Logout</a></li>
+                    </ul>
+                </div>
+            {% else %}
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link text-info" aria-current="page" href="{% url 'login' %}">Login</a>
+                    </li>
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+{% endblock %}

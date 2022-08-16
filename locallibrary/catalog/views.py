@@ -1,11 +1,12 @@
 import datetime
 from itertools import chain
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.urls import reverse_lazy
@@ -24,7 +25,7 @@ def index(request):
     num_instances = BookInstance.objects.all().count()
     search_param, num_genres_with_param, num_books_with_param = None, None, None
     if "search" in request.GET:
-        search_param = request.GET["q"]
+        search_param = request.GET["search"]
         num_genres_with_param = Genre.objects.filter(name__icontains=search_param).count()
         num_books_with_param = Book.objects.all().filter(genre__name__icontains=search_param).count()
 
@@ -33,7 +34,6 @@ def index(request):
 
     # The 'all()' is implied by default.
     num_authors = Author.objects.count()
-
     # Sessions
     num_visits = request.session.get('num_visits', 0)
     request.session['num_visits'] = num_visits + 1
@@ -44,7 +44,7 @@ def index(request):
         'num_authors': num_authors,
         'num_books_with_param': num_books_with_param,
         'num_genres_with_param': num_genres_with_param,
-        'q': search_param,
+        'search_param': search_param,
         'num_visits': num_visits,
     }
 
@@ -54,7 +54,7 @@ def index(request):
 
 class BookListView(generic.ListView):
     model = Book
-    paginate_by = 10
+    paginate_by = 3
 
     pass
 
@@ -90,12 +90,12 @@ class BookDetailView(generic.DetailView):
 
 class AuthorDetailView(generic.DetailView):
     model = Author
-    paginate_by = 10
+    paginate_by = 2
 
 
 class AuthorListView(generic.ListView):
     model = Author
-    paginate_by = 10
+    paginate_by = 2
 
 
 class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
@@ -147,6 +147,10 @@ def renew_book_librarian(request, pk):
             # process the data in form.cleaned_data as required (here we just write it to the model due_back field)
             book_instance.due_back = form.cleaned_data['renewal_date']
             book_instance.save()
+            messages.add_message(request, messages.SUCCESS, f'Successfully renewed book '
+                                                            f'{book_instance.book.title} until '
+                                                            f'{book_instance.due_back}',
+                                 extra_tags=datetime.datetime.now().time().strftime('%H:%M:%S'))
 
             # redirect to a new URL:
             return HttpResponseRedirect(reverse('all-borrowed'))
@@ -159,6 +163,7 @@ def renew_book_librarian(request, pk):
     context = {
         'form': form,
         'book_instance': book_instance,
+
     }
 
     return render(request, 'catalog/book_renew_librarian.html', context)
@@ -227,10 +232,14 @@ class BookDelete(DeleteView):
 #         context['search_results'] = self.get_queryset()
 #         return context
 
-
+# TODO: refactor this (query<4) if needed.
+# TODO: Improve toasts to show message status by their class and optionally additional info (current time)
 def search_books(request):
     # form = SearchForm(request.GET)
     # if form.is_valid():
+    if len(request.GET['q']) < 3:
+        messages.add_message(request, messages.ERROR, f'Invalid search term - search for more than 3 characters')
+        return redirect(request.META['HTTP_REFERER'])
 
     query = None
     if request.GET and request.GET['q']:
@@ -239,23 +248,23 @@ def search_books(request):
         authors = Author.objects.filter(Q(first_name__icontains=query) | Q(last_name__icontains=query))
         search_results = list(chain(books, authors))
         results = {}
-        for result in search_results:
-            if isinstance(result, Book):
-                if 'books' in results.keys():
-                    results['books'].append(result)
-                else:
-                    results['books'] = []
-                    results['books'].append(result)
-            elif isinstance(result, Author):
-                if 'authors' in results.keys():
-                    results['authors'].append(result)
-                else:
-                    results['authors'] = []
-                    results['authors'].append(result)
+        # for result in search_results:
+        #     if isinstance(result, Book):
+        #         if 'books' in results.keys():
+        #             results['books'].append(result)
+        #         else:
+        #             results['books'] = []
+        #             results['books'].append(result)
+        #     elif isinstance(result, Author):
+        #         if 'authors' in results.keys():
+        #             results['authors'].append(result)
+        #         else:
+        #             results['authors'] = []
+        #             results['authors'].append(result)
     if query:
         return render(request, 'catalog/search.html', {
             'query': query,
-            'results': results,
+            # 'results': results,
             'books': books,
             'authors': authors,
             'placeholder': '../../../media/book_covers/book_placeholder.png'

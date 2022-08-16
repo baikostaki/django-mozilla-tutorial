@@ -1,82 +1,60 @@
 {% extends 'base_generic.html' %}
-
+{% include 'catalog/partials/_toast.html' %}
 {% block content %}
-    {% if query %}
-        {% if results %}
+{#    {% if query %}#}
+        {% if books %}
             <h2>Your search for "{{ query }}" returned the following:</h2>
             <br/>
-            {% if 'books' in results %}
-                <h3>Books:</h3>
-                <br>
-                {% for book in books %}
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <a href="{{ book.get_absolute_url }}">
+            <h3>Books:</h3>
+            <br>
+            {% for book in books %}
+                <ul class="list-group">
+                    <li class="list-group-item d-flex">
+                        <div class=""><a href="{{ book.get_absolute_url }}" class="">
+                            <img class="thumb me-3"
+                                 src="{{ book.get_cover_image|default:placeholder }}"
+                                 alt="cover image">
+                        </a></div>
+                        <div class=""><a href="{{ book.get_absolute_url }}">
+                            <h4 class="">{{ book.title }}</h4>
+                        </a>
+                            <h5>Summary:</h5>
+                            <p class="">{{ book.summary }}</p>
+                        </div>
+                    </li>
+                </ul>
+            {% endfor %}
+        {% endif %}
+            <br/>
+            {% if authors %}
+                <h3>Authors:</h3>
+                {% for author in authors %}
+                    <ul class="list-group ">
+                        <li class="list-group-item d-flex">
+                            <div><a href="{{ author.get_absolute_url }}" class="d-flex align-items-center">
                                 <img class="thumb me-3"
                                      src="{{ book.get_cover_image|default:placeholder }}"
                                      alt="cover image">
 
-                            <h4 class="d-inline-block">{{ book.title }}</h4>
-                                </a>
+
+                            </a></div>
+                            <div>
+                                <a href="{{ author.get_absolute_url }}"><h4 class="">{{ author }}</h4></a>
+                                <sub>{{ author.date_of_birth|date:"DATE_FORMAT" }}
+                                    - {{ author.date_of_death|date:"DATE_FORMAT"|default:"" }}</sub>
+                            </div>
                         </li>
+
                     </ul>
                 {% endfor %}
-                {#                {% for key, values in results.items %}#}
-                {#                    {% if key == 'books' %}#}
-                {#                        {% for value in values %}#}
-                {#                            <ul class="list-group">#}
-                {#                                <li class="list-group-item">#}
-                {#                                    <a href="{{ value.get_absolute_url }}"><img src="{{ value. }}" alt=""></a>#}
-                {#                                    <a href="{{ value.get_absolute_url }}">{{ value.title }}</a>#}
-                {##}
-                {#                                </li>#}
-                {#                            </ul>#}
-                {#                        {% endfor %}#}
-                {#                    {% endif %}#}
-                {#                {% endfor %}#}
-                <br/>
             {% endif %}
-            {% if 'authors' in results %}
-                <h3>Authors:</h3>
-                {% for author in authors %}
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <a href="{{ author.get_absolute_url }}">
-                                <img class="thumb me-3"
-                                     src="{{ book.get_cover_image|default:placeholder }}"
-                                     alt="cover image">
-                            </a>
-                            <h4 class="d-inline-block"><a href="{{ author.get_absolute_url }}">{{ author }}</a></h4>
-                        </li>
-                    </ul>
-                {% endfor %}
-                {#                {% for key, values in results.items %}#}
-                {#                    {% if key == 'authors' %}#}
-                {#                        {% for value in values %}#}
-                {#                            <ul class="list-group">#}
-                {#                                <li class="list-group-item"><a href=" {{ value.get_absolute_url }} ">{{ value }}</a>#}
-                {#                                </li>#}
-                {#                            </ul>#}
-                {#                        {% endfor %}#}
-                {#                    {% endif %}#}
-                {#                {% endfor %}#}
-            {% endif %}
-            {#            {% for book in results['books]' %}#}
-            {##}
-            {##}
-            {#                <h3></h3>#}
-            {#                <ul class="list-group list-group-flush">#}
-            {#                    {{ result|pprint }}#}
-            {#                      <li class="list-group-item"><a href="{% url 'book-detail' result.id %}">{{ result }}</a></li>#}
-            {#                </ul>#}
-            {##}
-            {#            {% endfor %}#}
-        {% else %}
+{#        {% else %}#}
             <h2>Please refine your search. No results for: "{{ query }}"</h2>
-        {% endif %}
-    {% else %}
-        <h2 class="text-center">You didn't enter anything to search for.</h2>
-        <br>
-        <h4 class="text-center">You can go <a href="javascript:history.go(-1)">back</a> or search again</h4>
-    {% endif %}
+{#        {% endif %}#}
+        {#TODO: rework using empty tag in for loop: {% for %}...{% empty %}...{% endfor %}#}
+{#    {% else %}#}
+{#        <h2 class="text-center">You didn't enter anything to search for.</h2>#}
+{#        <br>#}
+{#        <h4 class="text-center">You can go <a href="javascript:history.go(-1)">back</a> or search again</h4>#}
+{#    {% endif %}#}
 {% endblock %}
