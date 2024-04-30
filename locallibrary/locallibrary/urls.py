@@ -19,6 +19,10 @@ from django.contrib import admin
 from django.urls import include
 from django.urls import path
 from django.views.generic import RedirectView
+from django.contrib.auth.views import LoginView
+
+
+from locallibrary.catalog import views as my_views
 
 urlpatterns = [
                   path('admin/', admin.site.urls),
@@ -34,4 +38,10 @@ urlpatterns = [
 
 urlpatterns += [
     path('accounts/', include('django.contrib.auth.urls')),
+
+]
+
+# TODO: redirect to home if user tries to reach login
+urlpatterns += [
+    path('accounts/login2/', my_views.my_login, name='login2')
 ]

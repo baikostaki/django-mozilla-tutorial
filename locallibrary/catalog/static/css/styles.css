@@ -11,3 +11,8 @@
 .create-button{
     height:min-content;
 }
+
+.buy-button{
+    width: 150px;
+    /*margin-bottom: 0.50rem;*/
+}

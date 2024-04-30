@@ -1,4 +1,5 @@
 from django.urls import path, re_path
+
 from . import views
 
 urlpatterns = [
@@ -34,7 +35,10 @@ urlpatterns += [
     path('search/', views.search_books, name='search')
 ]
 
-# urlpatterns += [
-#     path('books/?search=<str>', views.SearchListView.as_view, name='search')
-#
-# ]
+urlpatterns += [
+    path('cart/', views.cart, name='cart')
+]
+
+urlpatterns += [
+    path('test/', views.test, name='test')
+]

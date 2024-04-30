@@ -4,7 +4,9 @@
     <h1>{{ book.title }}</h1>
     <div class="row">
         <div class="col-md-2 mb-4 me-4 mt-3">
-            <img class="w-100" src="{{ book.get_cover_image|default_if_none:'../../../media/book_covers/book_placeholder.png' }}" alt="cover image">
+            <img class="w-100"
+                 src="{{ book.get_cover_image|default_if_none:'../../../media/book_covers/book_placeholder.png' }}"
+                 alt="cover image">
         </div>
         <div class="col-md-4 mb-4 mt-3">
             <p><strong>Author:</strong> <a href="{{ book.author.get_absolute_url }}">{{ book.author }}</a></p>
@@ -12,9 +14,16 @@
             <p><strong>ISBN:</strong> {{ book.isbn }}</p>
             <p><strong>Language:</strong> {{ book.language }}</p>
             <p><strong>Genre:</strong> {{ book.genre.all|join:", " }}</p>
+            <p><strong>Price:</strong> {{ book.price }} </p>
+            <div>
+                <button class="btn btn-primary buy-button mb-sm-2" data-product="{{ book.id }}" data-action="add" data-bs-toggle="modal" data-bs-target="#myModal">Add
+                    to cart
+                </button>
+            </div>
+
         </div>
     </div>
-    <div class="ml-4 mt-2px">
+    <div class="ms-4 mt-2">
         <h4>Copies</h4>
         {% for copy in book.bookinstance_set.all %}
             <hr>

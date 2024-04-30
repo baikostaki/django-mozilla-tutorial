@@ -2,6 +2,7 @@ import datetime
 from itertools import chain
 
 from django.contrib import messages
+from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import Q
@@ -271,3 +272,19 @@ def search_books(request):
             # 'form': form,
         })
     return render(request, 'catalog/search.html', {'q': None})
+
+
+@login_required
+def cart(request):
+    return render(request, 'catalog/cart.html')
+
+
+def test(request):
+    return render(request, 'catalog/test.html')
+
+
+def my_login(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('index'))
+    else:
+        return render(request, 'registration/login.html')

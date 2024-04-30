@@ -11,7 +11,9 @@
 {% block navigation %}
     {% include 'catalog/partials/_nav.html' %}
 {% endblock %}
-
+{% block modal %}
+    {% include 'catalog/partials/modals/_continue-shopping.html' %}
+{% endblock %}
 <div class="container-fluid px-5">
     <div class="row">
         <div class="col-md-8 mx-auto">
@@ -24,6 +26,6 @@
 
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-<script rel="stylesheet" src="{% static 'js/site.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/site.js' %}"></script>
 </body>
 </html>
